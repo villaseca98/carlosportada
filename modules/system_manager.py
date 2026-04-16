@@ -1,20 +1,42 @@
 """
 Modulo de gestion del sistema para Jarvis.
-Abre aplicaciones, muestra info del sistema, ejecuta comandos.
+Abre aplicaciones (incluyendo WhatsApp y Notion), muestra info del sistema.
 """
 
 import subprocess
 import platform
-import os
-import shutil
+import webbrowser
 
 
 class SystemManager:
     """Gestor de sistema de Jarvis. Abre apps, monitoriza recursos."""
 
+    # URLs de webapps conocidas
+    WEB_APPS = {
+        "whatsapp": "https://web.whatsapp.com",
+        "whaticket": "https://web.whatsapp.com",
+        "notion": "https://www.notion.so",
+        "gmail": "https://mail.google.com",
+        "google": "https://www.google.com",
+        "youtube": "https://www.youtube.com",
+        "twitter": "https://twitter.com",
+        "x": "https://x.com",
+        "instagram": "https://www.instagram.com",
+        "github": "https://github.com",
+        "chatgpt": "https://chat.openai.com",
+        "drive": "https://drive.google.com",
+        "calendar": "https://calendar.google.com",
+        "maps": "https://maps.google.com",
+        "trello": "https://trello.com",
+        "slack": "https://slack.com",
+        "discord": "https://discord.com/app",
+        "linkedin": "https://www.linkedin.com",
+        "tiktok": "https://www.tiktok.com",
+        "twitch": "https://www.twitch.tv",
+        "netflix": "https://www.netflix.com",
+    }
+
     APPS_LINUX = {
-        "navegador": ["xdg-open", "https://www.google.com"],
-        "browser": ["xdg-open", "https://www.google.com"],
         "chrome": ["google-chrome"],
         "firefox": ["firefox"],
         "terminal": ["x-terminal-emulator"],
@@ -22,15 +44,14 @@ class SystemManager:
         "explorador": ["nautilus"],
         "calculadora": ["gnome-calculator"],
         "editor": ["gedit"],
-        "musica": ["rhythmbox"],
         "spotify": ["spotify"],
         "configuracion": ["gnome-control-center"],
         "monitor": ["gnome-system-monitor"],
+        "code": ["code"],
+        "vscode": ["code"],
     }
 
     APPS_WINDOWS = {
-        "navegador": ["start", "https://www.google.com"],
-        "browser": ["start", "https://www.google.com"],
         "chrome": ["start", "chrome"],
         "firefox": ["start", "firefox"],
         "terminal": ["cmd"],
@@ -44,11 +65,11 @@ class SystemManager:
         "word": ["start", "winword"],
         "excel": ["start", "excel"],
         "powerpoint": ["start", "powerpnt"],
+        "code": ["start", "code"],
+        "vscode": ["start", "code"],
     }
 
     APPS_MAC = {
-        "navegador": ["open", "https://www.google.com"],
-        "browser": ["open", "https://www.google.com"],
         "chrome": ["open", "-a", "Google Chrome"],
         "firefox": ["open", "-a", "Firefox"],
         "safari": ["open", "-a", "Safari"],
@@ -56,10 +77,11 @@ class SystemManager:
         "archivos": ["open", "-a", "Finder"],
         "explorador": ["open", "-a", "Finder"],
         "calculadora": ["open", "-a", "Calculator"],
-        "musica": ["open", "-a", "Music"],
         "spotify": ["open", "-a", "Spotify"],
         "configuracion": ["open", "-a", "System Preferences"],
         "notas": ["open", "-a", "Notes"],
+        "code": ["open", "-a", "Visual Studio Code"],
+        "vscode": ["open", "-a", "Visual Studio Code"],
     }
 
     def __init__(self):
@@ -74,9 +96,20 @@ class SystemManager:
             self.apps = self.APPS_LINUX
 
     def open_app(self, app_name):
-        """Abrir una aplicacion por nombre."""
+        """Abrir una aplicacion por nombre. Detecta webapps automaticamente."""
         app_name = app_name.lower().strip()
 
+        # Primero comprobar si es una webapp conocida
+        for key, url in self.WEB_APPS.items():
+            if key in app_name or app_name in key:
+                try:
+                    webbrowser.open(url)
+                    return f"Abriendo {key} en el navegador..."
+                except Exception as e:
+                    return f"Error al abrir {key}: {e}"
+
+        # Luego buscar en apps nativas
+        cmd = None
         if app_name in self.apps:
             cmd = self.apps[app_name]
         else:
@@ -84,13 +117,14 @@ class SystemManager:
                 if key in app_name or app_name in key:
                     cmd = self.apps[key]
                     break
+
+        if not cmd:
+            if self.system == "linux":
+                cmd = [app_name]
+            elif self.system == "darwin":
+                cmd = ["open", "-a", app_name]
             else:
-                if self.system == "linux":
-                    cmd = [app_name]
-                elif self.system == "darwin":
-                    cmd = ["open", "-a", app_name]
-                else:
-                    cmd = ["start", app_name]
+                cmd = ["start", app_name]
 
         try:
             if self.system == "windows":
@@ -102,6 +136,22 @@ class SystemManager:
             return f"No pude encontrar la aplicacion '{app_name}'."
         except Exception as e:
             return f"Error al abrir {app_name}: {e}"
+
+    def open_whatsapp(self):
+        """Abrir WhatsApp Web directamente."""
+        try:
+            webbrowser.open("https://web.whatsapp.com")
+            return "Abriendo WhatsApp Web..."
+        except Exception as e:
+            return f"Error al abrir WhatsApp: {e}"
+
+    def open_notion(self):
+        """Abrir Notion directamente."""
+        try:
+            webbrowser.open("https://www.notion.so")
+            return "Abriendo Notion..."
+        except Exception as e:
+            return f"Error al abrir Notion: {e}"
 
     def get_system_info(self):
         """Obtener informacion completa del sistema."""
@@ -160,29 +210,10 @@ class SystemManager:
         except ImportError:
             return "Sistema operativo: " + platform.system()
 
-    def run_command(self, command):
-        """Ejecutar un comando del sistema y devolver la salida."""
-        blocked = ["rm -rf", "mkfs", "dd if=", ":(){", "fork bomb", "format c:"]
-        for b in blocked:
-            if b in command.lower():
-                return "Ese comando esta bloqueado por seguridad."
-
-        try:
-            result = subprocess.run(
-                command,
-                shell=True,
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-            output = result.stdout.strip() or result.stderr.strip()
-            return output if output else "Comando ejecutado sin salida."
-        except subprocess.TimeoutExpired:
-            return "El comando tardo demasiado y fue cancelado."
-        except Exception as e:
-            return f"Error al ejecutar comando: {e}"
-
     def list_available_apps(self):
         """Listar aplicaciones disponibles."""
-        apps = sorted(self.apps.keys())
-        return "Aplicaciones disponibles: " + ", ".join(apps)
+        native = sorted(self.apps.keys())
+        web = sorted(self.WEB_APPS.keys())
+        result = "Apps nativas: " + ", ".join(native)
+        result += "\nWebapps: " + ", ".join(web)
+        return result

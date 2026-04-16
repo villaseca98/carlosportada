@@ -1,49 +1,58 @@
 """
 Configuracion de Jarvis.
-Modifica estos valores para personalizar tu asistente.
+Carga las API keys desde .env y define parametros del sistema.
+
+Crea un archivo .env en la raiz del proyecto con:
+
+    SPOTIFY_CLIENT_ID=tu_client_id
+    SPOTIFY_CLIENT_SECRET=tu_client_secret
+    SPOTIFY_REDIRECT_URI=http://localhost:8888/callback
+    NOTION_TOKEN=tu_notion_integration_token
+    NOTION_CALENDAR_DB=id_de_tu_base_de_datos_calendario
+    WEATHER_CITY=Madrid
 """
 
-# === DETECCION DE PALMAS ===
-# Sensibilidad del microfono para detectar palmas.
-# Valores mas bajos = mas sensible (puede dar falsos positivos).
-# Valores mas altos = menos sensible (puede no detectar palmas suaves).
-# Rango recomendado: 1500-5000
-CLAP_THRESHOLD = 3000
+import os
+from dotenv import load_dotenv
 
-# Tiempo maximo entre palmas para que cuenten como patron (en segundos).
-# Ejemplo: 2 palmas deben ocurrir dentro de este intervalo.
-CLAP_INTERVAL = 0.6
+load_dotenv()
+
+# === SPOTIFY ===
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID", "")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET", "")
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI", "http://localhost:8888/callback")
+SPOTIFY_SCOPE = (
+    "user-read-playback-state "
+    "user-modify-playback-state "
+    "user-read-currently-playing "
+    "playlist-read-private "
+    "playlist-read-collaborative"
+)
+
+# === NOTION ===
+NOTION_TOKEN = os.getenv("NOTION_TOKEN", "")
+NOTION_CALENDAR_DB = os.getenv("NOTION_CALENDAR_DB", "")
+
+# === DETECCION DE PALMAS ===
+CLAP_THRESHOLD = int(os.getenv("CLAP_THRESHOLD", "3000"))
+CLAP_INTERVAL = float(os.getenv("CLAP_INTERVAL", "0.6"))
 
 # === AUDIO ===
 SAMPLE_RATE = 44100
 CHUNK_SIZE = 1024
 
 # === VOZ ===
-# Idioma del reconocimiento de voz y TTS
 VOICE_LANGUAGE = "es"
-# Velocidad de habla (palabras por minuto aprox)
 VOICE_RATE = 180
-# Volumen de voz (0.0 a 1.0)
 VOICE_VOLUME = 1.0
 
-# === MUSICA ===
-# Carpeta donde Jarvis busca canciones
-MUSIC_DIR = "music"
-# Volumen inicial de la musica (0.0 a 1.0)
-MUSIC_VOLUME = 0.7
-
 # === NOTICIAS ===
-# Ciudad por defecto para el clima
-DEFAULT_CITY = "Madrid"
-# Numero de noticias a mostrar
+DEFAULT_CITY = os.getenv("WEATHER_CITY", "Madrid")
 NEWS_COUNT = 5
 
 # === RECORDATORIOS ===
 REMINDERS_FILE = "reminders.json"
 
 # === INTERFAZ ===
-# Mostrar ASCII art al iniciar
 SHOW_BANNER = True
-
-# Nombre del asistente
 ASSISTANT_NAME = "Jarvis"

@@ -10,12 +10,6 @@ build/
 venv/
 env/
 reminders.json
-*.mp3
-*.wav
-*.ogg
-*.flac
-*.m4a
-!music/.gitkeep
-!sounds/.gitkeep
 .env
+.spotify_cache
 .DS_Store

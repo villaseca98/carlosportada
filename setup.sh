@@ -1,7 +1,10 @@
 #!/bin/bash
 # ============================================
-#  Instalador de Jarvis - Tu asistente personal
+#  Instalador de Jarvis
+#  Spotify + Notion + WhatsApp + Voz + Palmas
 # ============================================
+
+set -e
 
 echo ""
 echo "  ██╗ █████╗ ██████╗ ██╗   ██╗██╗███████╗"
@@ -11,7 +14,7 @@ echo "  ██║██╔══██║██╔══██╗╚██╗ �
 echo "  ╚█████╔╝██║  ██║██║  ██║ ╚████╔╝ ██║███████║"
 echo "   ╚════╝╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚═╝╚══════╝"
 echo ""
-echo "  Instalando dependencias..."
+echo "  Instalando Jarvis con Spotify + Notion..."
 echo ""
 
 # Detectar sistema operativo
@@ -36,14 +39,34 @@ echo "[*] Instalando paquetes Python..."
 pip install --upgrade pip -q
 pip install -r requirements.txt -q
 
+# Crear .env si no existe
+if [ ! -f .env ]; then
+    echo "[*] Creando archivo .env desde .env.example..."
+    cp .env.example .env
+    echo ""
+    echo "  *** IMPORTANTE ***"
+    echo "  Edita el archivo .env con tus credenciales:"
+    echo "    - Spotify: https://developer.spotify.com/dashboard"
+    echo "    - Notion:  https://www.notion.so/my-integrations"
+    echo ""
+fi
+
 echo ""
 echo "============================================"
 echo "  Jarvis instalado correctamente!"
 echo ""
-echo "  Para ejecutar:"
+echo "  CONFIGURACION:"
+echo "    1. Edita .env con tus API keys"
+echo "    2. Spotify: crea app en developer.spotify.com"
+echo "    3. Notion: crea integracion y comparte tu BD"
+echo ""
+echo "  EJECUTAR:"
 echo "    source venv/bin/activate"
 echo "    python jarvis.py"
 echo ""
-echo "  Pon tus canciones MP3 en la carpeta 'music/'"
+echo "  CONTROLES:"
+echo "    1 palma  = Escuchar comando"
+echo "    2 palmas = Play/Pause Spotify"
+echo "    3 palmas = Informe del dia"
 echo "============================================"
 echo ""
