@@ -1,0 +1,11 @@
+pyaudio>=0.2.14
+numpy>=1.24.0
+pyttsx3>=2.90
+SpeechRecognition>=3.10.0
+requests>=2.31.0
+feedparser>=6.0.10
+psutil>=5.9.0
+python-dateutil>=2.8.2
+spotipy>=2.23.0
+notion-client>=2.2.0
+python-dotenv>=1.0.0
